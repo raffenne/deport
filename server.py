@@ -3,65 +3,64 @@ import threading
 import os
 import time
 
-my_lock=threading.RLock()#creation du verrou expliquer plus tard
+my_lock=threading.RLock()#creation of the lock
 
-class ThreadforClients (threading.Thread) :#la classe threading permet d'eviter des problemes de lag lorsqu'il y a trop de clients
-
-    def __init__(self,conn):
+class ThreadforClients (threading.Thread) :# threadings
+    def __init__(self,conn): 
         threading.Thread.__init__(self)
         self.conn=conn
 
     def run(self):
-        with my_lock:#si plusieurs clients les taches ne se font pas en parallèle mais un client apres lautre
+        with my_lock:
             accepte = "non"
             num = 0
             pourcent = 0
 
             while conn.connect:
-                recu = conn.recv(1024)#message capte du client en bytes
+                recu = conn.recv(1024)#message received from the client in bytes
                 recu = recu.decode('utf8')
 
                 if not recu: break
 
-                if accepte == "non":  # Condition si on a pas deja envoyer le nom et la taille du fichier
+                if accepte == "non":  # Condition if we haven't already sent the name and size of the file.
                     nomFich = recu.split("NAME ")[1]
                     nomFich = nomFich.split("OCTETS ")[0]
                     taille = recu.split("OCTETS ")[1]
                     print(" >> Fichier \'" + nomFich + "\' [" + taille + " Ko]")
-                    accepte = input(" >> Acceptez vous le transfert [o/n] : ")
+                    accepte = input(" >> do you accept the transfert [o/n] : ")
 
                     if accepte == "o" or accepte == "oui" or accepte == "yes":  # Si oui en lenvoi au client et on cree le fichier
                         nomFich=nomFich[0:(len(nomFich)-5)]
-                        lalal="GO"
+                        lalal="start"
                         lalal=lalal.encode('utf8')
                         conn.send(lalal)
-                        try :#creation d'un fichier gerard qui contient le fichier envoye
+                        try :#creation of a gerard file containing the sent file
                             os.mkdir('gerard', 0o777)
                         except FileExistsError:
                             print('')
-                        fd=os.open("gerard/" + nomFich + ".csv",os.O_RDWR|os.O_CREAT)#le fichier est cree et est pret à etre ecrits
-                        fo = os.fdopen(fd, "w+")#creation de l'objet fichier pour que l'ordinateur comprenne ... j'ai essayé pas mal de truc avec la bibliotheque os c'est le seul truc qui marche
-                        print(time.strftime(" >> [%H:%M] transfert en cours veuillez patienter..."))#la bilitohèque time permet d'ajouter des informations sur l'heure en temps réel (souvent utilisé pour complété des logs de tous les niveaux)
+                        fd=os.open("gerard/" + nomFich + ".csv",os.O_RDWR|os.O_CREAT)
+                        fo = os.fdopen(fd, "w+")
+                        print(time.strftime(" >> [%H:%M] transfert en cours veuillez patienter..."))
                         print("")
                         taille = float(taille) * 1024  # Conversion de la taille en octets pour le %
 
                     else:
                         lola='Bye'
                         lola=lola.encode('utf8')
-                        conn.send(lola)  # Si pas accepte on ferme le programme
+                        conn.send(lola)  
                         exit()
 
-                elif recu == "BYE":  # Si on a recu "BYE" le transfer est termine
+                elif recu == "BYE":  
                     fo.close()
                     print("")
                     print(time.strftime(" >> Le %d/%m a %H:%M transfert termine !"))
 
 
-                else:  # Sinon on ecrit au fur et a mesure dans le fichier
+                else:  
                     fo.write( recu)
 
 
-                    if taille > 1024:  # Si la taille est plus grande que 1024 on s'occupe du %
+                    if taille > 1024:  
 
                         # Condition pour afficher le % du transfert :
                         if pourcent == 0 and num > taille / 100 * 10 and num < taille / 100 * 20:
@@ -93,34 +92,26 @@ class ThreadforClients (threading.Thread) :#la classe threading permet d'eviter 
                             pourcent = 9
 
                         num = num + 1024
-            #creation du fichier
-            #path='gerard/' + nomFich + '.csv'
-
-            #try :
-             #   os.mkdir('gerard/fichiers_traites', 0o777)
-            #except FileExistsError:
-             #    print('')
-            #fq = os.open("gerard/" + nomFich + "_traite.csv", os.O_RDWR | os.O_CREAT)
+            
 
 
 
+        print('it is finished you have all the files')
 
-        print('c\'est fini, tu as tous les fichiers')
 
-
-#--------------------------------------------
+#-------------------------------------------- Launching the server
 
 host, port = ('', 5566)
 
 socket = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
 socket.bind((host,port))
-print('>>Le server est en marche et attend des clients')
+print('>>The server is up and waiting for clients')
 
 while True:
 
-    socket.listen(5)#on autorise le serveur à refuser 5 connections
-    conn, adresse = socket.accept()#on accepte le client ... ca n'est pas très securise mais j'y travaille
-    myThread = ThreadforClients(conn)#
+    socket.listen(100)
+    conn, adresse = socket.accept()
+    myThread = ThreadforClients(conn)
     myThread.start()
     myThread.join()
 
