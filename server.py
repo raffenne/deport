@@ -29,7 +29,7 @@ class ThreadforClients (threading.Thread) :# threadings
                     print(" >> Fichier \'" + nomFich + "\' [" + taille + " Ko]")
                     accepte = input(" >> do you accept the transfert [o/n] : ")
 
-                    if accepte == "o" or accepte == "oui" or accepte == "yes":  # Si oui en lenvoi au client et on cree le fichier
+                    if accepte == "o" or accepte == "oui" or accepte == "yes":  
                         nomFich=nomFich[0:(len(nomFich)-5)]
                         lalal="start"
                         lalal=lalal.encode('utf8')
@@ -42,7 +42,7 @@ class ThreadforClients (threading.Thread) :# threadings
                         fo = os.fdopen(fd, "w+")
                         print(time.strftime(" >> [%H:%M] transfert en cours veuillez patienter..."))
                         print("")
-                        taille = float(taille) * 1024  # Conversion de la taille en octets pour le %
+                        taille = float(taille) * 1024 
 
                     else:
                         lola='Bye'
@@ -53,7 +53,7 @@ class ThreadforClients (threading.Thread) :# threadings
                 elif recu == "BYE":  
                     fo.close()
                     print("")
-                    print(time.strftime(" >> Le %d/%m a %H:%M transfert termine !"))
+                    print(time.strftime(" >> Le %d/%m a %H:%M trasnfert is ended !"))
 
 
                 else:  
