@@ -5,14 +5,14 @@ import time
 host, port = ("localhost", 5566)
 socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-nomFich = input(" >> Nom du fichier a envoyer (ou rien pour recevoir) : ")
+nomFich = input(" >> Name of the file : ")
 
 if nomFich != "":
             try:
-                fich = open(nomFich, "rb")  # test si le fichier existe
+                fich = open(nomFich, "rb")  # test if the file exist
                 fich.close()
             except:
-                print(" >> le fichier '" + nomFich + "' est introuvable.")
+                print(" >> the file '" + nomFich + " is nowhere to be found.")
                 time.sleep(2)
                 exit()
 
@@ -21,7 +21,7 @@ if nomFich != "":
             print("")
 
             print("")
-            print(" >> Vous etes connecte au serveur, patientez d'une reponse...")
+            print(" >> Connexion to the server is a success, waiting for a response...")
             print("")
 
             socket.connect((host, port))
@@ -34,9 +34,9 @@ if nomFich != "":
                 recu = recu.decode('utf8')
                 if not recu: break
 
-                if recu == "GO":  # Si le serveur accepte on envoi le fichier
-                    print(" >> Le serveur accepte le transfert")
-                    print(time.strftime(" >> [%H:%M] transfert en cours veuillez patienter..."))
+                if recu == "start":  # If the server accepts we send the file
+                    print(" >> your request is accepted by the server")
+                    print(time.strftime(" >> [%H:%M] transfer in progress please wait..."))
                     print(" ")
 
                     num = 0
@@ -48,12 +48,11 @@ if nomFich != "":
                         for i in range(int(octets / 1024)):
 
                             fich.seek(num,
-                                      0)  # on se deplace par rapport au numero de caractere (de 1024 a 1024 octets)
-                            donnees = fich.read(1024)  # Lecture du fichier en 1024 octets
-                            socket.send(donnees)  # Envoi du fichier par paquet de 1024 octets
+                                      0)  # you move in relation to the character number (group by 1024 octets)
+                            donnees = fich.read(1024)  # Reading the 1024 byte file
+                            socket.send(donnees)  # Sending the file in 1024-byte packets
                             num = num + 1024
 
-                            # Condition pour afficher le % du transfert  :
                             if pourcent == 0 and num > octets / 100 * 10 and num < octets / 100 * 20:
                                 print(" -->>                   10%")
                                 pourcent = 1
@@ -82,20 +81,20 @@ if nomFich != "":
                                 print(" ------------------>>   90%")
                                 pourcent = 9
 
-                    else:  # Sinon on envoi tous d'un coup
+                    else:  # Otherwise, we're all going to send out all at once
                         donnees = fich.read()
 
                         socket.send(donnees)
 
                     fich.close()
                     print("")
-                    print(time.strftime(" >> Le %d/%m a %H:%M transfert termine !"))
+                    print(time.strftime(" >> Le %d/%m a %H:%M transfer completed !"))
                     claque = 'BYE'
                     claque = claque.encode('utf8')
-                    socket.send(claque)  # Envoi comme quoi le transfert est fini
+                    socket.send(claque)  # Sending that the transfer is complete
 
-                    #####print('>>en attente des fichiers traités')
+                    #####print('>>waiting for processed files')
 
                     socket.close()
 else:
-            print('>>fichier inexistant')
+            print('>>non-existent file')
